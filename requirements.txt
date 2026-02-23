@@ -1,0 +1,6 @@
+python-telegram-bot
+google-generativeai
+pydantic
+python-dotenv
+sqlalchemy
+gtts
