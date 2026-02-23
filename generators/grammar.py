@@ -11,7 +11,7 @@ class GrammarGenerator:
     
     def __init__(self):
         genai.configure(api_key=config.gemini_api_key)
-        self.model = genai.GenerativeModel('gemini-2.0-flash')
+        self.model = genai.GenerativeModel('gemini-3-flash-preview')
     
     def generate_grammar_question(self, difficulty: str = "intermediate", 
                                   grammar_point: str = None) -> Dict[str, Any]:

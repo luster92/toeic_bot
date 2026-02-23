@@ -11,7 +11,7 @@ class ListeningGenerator:
     
     def __init__(self):
         genai.configure(api_key=config.gemini_api_key)
-        self.model = genai.GenerativeModel('gemini-2.0-flash')
+        self.model = genai.GenerativeModel('gemini-3-flash-preview')
     
     def generate_conversation_question(self, difficulty: str = "intermediate") -> Dict[str, Any]:
         """Generate a TOEIC Part 3 style conversation question.
