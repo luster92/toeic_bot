@@ -48,24 +48,42 @@ D) {opt_d}
 <i>Difficulty: Intermediate</i>
 <i>Grammar Point: {grammar_pt}</i>"""
     
-    # Create buttons
+    # Register user in database (for handling callbacks)
+    bot_token = os.getenv("TELEGRAM_BOT_TOKEN_TOEIC")
+    chat_id = os.getenv("TELEGRAM_CHAT_ID")
+
+    from database import init_db, get_session, DatabaseOperations
+    from config import config
+    engine = init_db(config.database_url)
+    session = get_session(engine)
+    db_ops = DatabaseOperations(session)
+    
+    # Get or create user
+    user_obj = db_ops.get_or_create_user(telegram_id=int(chat_id))
+    
+    # Save question to DB
+    question_obj = db_ops.save_question({
+        'question_type': 'grammar',
+        'difficulty': 'intermediate',
+        'question_text': question['question_text'],
+        'option_a': question['option_a'],
+        'option_b': question['option_b'],
+        'option_c': question['option_c'],
+        'option_d': question['option_d'],
+        'correct_answer': question['correct_answer'],
+        'explanation': question['explanation'],
+    })
+
+    # Create buttons with REAL question ID
     keyboard = [
         [
-            InlineKeyboardButton("A", callback_data=f"answer_1_A"),
-            InlineKeyboardButton("B", callback_data=f"answer_1_B"),
-            InlineKeyboardButton("C", callback_data=f"answer_1_C"),
-            InlineKeyboardButton("D", callback_data=f"answer_1_D"),
+            InlineKeyboardButton("A", callback_data=f"answer_{question_obj.id}_A"),
+            InlineKeyboardButton("B", callback_data=f"answer_{question_obj.id}_B"),
+            InlineKeyboardButton("C", callback_data=f"answer_{question_obj.id}_C"),
+            InlineKeyboardButton("D", callback_data=f"answer_{question_obj.id}_D"),
         ]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    
-    # Send to Telegram
-    bot_token = os.getenv("TELEGRAM_BOT_TOKEN_TOEIC")
-    chat_id = os.getenv("TELEGRAM_CHAT_ID")
-    
-    if not bot_token or not chat_id:
-        print("❌ Missing TELEGRAM_BOT_TOKEN_TOEIC or TELEGRAM_CHAT_ID")
-        return
     
     bot = Bot(token=bot_token)
     
@@ -76,6 +94,8 @@ D) {opt_d}
         parse_mode='HTML',
         reply_markup=reply_markup
     )
+    
+    session.close()
     
     print("✅ Question sent successfully!")
     print(f"\n정답: {question['correct_answer']}")
@@ -119,20 +139,39 @@ D) {opt_d}
 
 <i>Difficulty: Intermediate</i>"""
     
-    # Create buttons
+    # Register user and save question
+    bot_token = os.getenv("TELEGRAM_BOT_TOKEN_TOEIC")
+    chat_id = os.getenv("TELEGRAM_CHAT_ID")
+    
+    from database import init_db, get_session, DatabaseOperations
+    from config import config
+    engine = init_db(config.database_url)
+    session = get_session(engine)
+    db_ops = DatabaseOperations(session)
+    
+    # Save question to DB
+    question_obj = db_ops.save_question({
+        'question_type': 'listening',
+        'difficulty': 'intermediate',
+        'question_text': question['question'],
+        'option_a': question['option_a'],
+        'option_b': question['option_b'],
+        'option_c': question['option_c'],
+        'option_d': question['option_d'],
+        'correct_answer': question['correct_answer'],
+        'explanation': question['explanation'],
+    })
+
+    # Create buttons with REAL question ID
     keyboard = [
         [
-            InlineKeyboardButton("A", callback_data=f"answer_2_A"),
-            InlineKeyboardButton("B", callback_data=f"answer_2_B"),
-            InlineKeyboardButton("C", callback_data=f"answer_2_C"),
-            InlineKeyboardButton("D", callback_data=f"answer_2_D"),
+            InlineKeyboardButton("A", callback_data=f"answer_{question_obj.id}_A"),
+            InlineKeyboardButton("B", callback_data=f"answer_{question_obj.id}_B"),
+            InlineKeyboardButton("C", callback_data=f"answer_{question_obj.id}_C"),
+            InlineKeyboardButton("D", callback_data=f"answer_{question_obj.id}_D"),
         ]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    
-    # Send to Telegram
-    bot_token = os.getenv("TELEGRAM_BOT_TOKEN_TOEIC")
-    chat_id = os.getenv("TELEGRAM_CHAT_ID")
     
     bot = Bot(token=bot_token)
     
@@ -143,6 +182,8 @@ D) {opt_d}
         parse_mode='HTML',
         reply_markup=reply_markup
     )
+    
+    session.close()
     
     print("✅ Question sent successfully!")
     print(f"\n정답: {question['correct_answer']}")
